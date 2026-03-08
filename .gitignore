@@ -1,0 +1,10 @@
+.env
+target/
+.idea/
+*.class
+*.log
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/
+mvnw
+mvnw.cmd
