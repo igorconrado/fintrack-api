@@ -18,11 +18,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     Optional<Transaction> findByIdAndUserId(UUID id, UUID userId);
 
     @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId " +
-            "AND (:type IS NULL OR t.type = :type) " +
-            "AND (:categoryId IS NULL OR t.category.id = :categoryId) " +
-            "AND (:accountId IS NULL OR t.account.id = :accountId) " +
-            "AND (:startDate IS NULL OR t.date >= :startDate) " +
-            "AND (:endDate IS NULL OR t.date <= :endDate)")
+            "AND (CAST(:type AS string) IS NULL OR t.type = :type) " +
+            "AND (CAST(:categoryId AS string) IS NULL OR t.category.id = :categoryId) " +
+            "AND (CAST(:accountId AS string) IS NULL OR t.account.id = :accountId) " +
+            "AND (CAST(:startDate AS date) IS NULL OR t.date >= :startDate) " +
+            "AND (CAST(:endDate AS date) IS NULL OR t.date <= :endDate)")
     Page<Transaction> findWithFilters(
             @Param("userId") UUID userId,
             @Param("type") TransactionType type,
