@@ -6,6 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.fintrack.summary.dto.CategoryBreakdown;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -33,4 +36,23 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             Pageable pageable);
 
     List<Transaction> findByUserIdAndDateBetween(UUID userId, LocalDate start, LocalDate end);
+
+    @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.user.id = :userId " +
+            "AND t.type = :type " +
+            "AND (CAST(:categoryId AS string) IS NULL OR t.category.id = :categoryId) " +
+            "AND MONTH(t.date) = :month AND YEAR(t.date) = :year")
+    BigDecimal sumByTypeAndPeriod(@Param("userId") UUID userId,
+                                 @Param("type") TransactionType type,
+                                 @Param("categoryId") UUID categoryId,
+                                 @Param("month") Integer month,
+                                 @Param("year") Integer year);
+
+    @Query("SELECT t.category.name as categoryName, SUM(t.amount) as total " +
+            "FROM Transaction t WHERE t.user.id = :userId AND t.type = :type " +
+            "AND MONTH(t.date) = :month AND YEAR(t.date) = :year " +
+            "GROUP BY t.category.name ORDER BY total DESC")
+    List<CategoryBreakdown> getCategoryBreakdown(@Param("userId") UUID userId,
+                                                 @Param("type") TransactionType type,
+                                                 @Param("month") Integer month,
+                                                 @Param("year") Integer year);
 }
